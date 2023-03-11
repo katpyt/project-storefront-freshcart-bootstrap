@@ -14,22 +14,41 @@
             <div class="row w-100 align-items-center g-lg-2 g-0">
                 <div class="col-xxl-2 col-lg-3">
                     <a class="navbar-brand d-none d-lg-block"
-                       routerLink="/"> <img src="/assets/images/logo/freshcart-logo.svg"
-                             alt="eCommerce HTML Template"> </a>
+                       routerLink="/">
+                        <img src="/assets/images/logo/freshcart-logo.svg"
+                             alt="eCommerce HTML Template">
+                    </a>
                     <div class="d-flex justify-content-between w-100 d-lg-none">
                         <a class="navbar-brand"
-                           routerLink="/"> <img src="/assets/images/logo/freshcart-logo.svg"
-                                 alt="eCommerce HTML Template"> </a>
+                           routerLink="/">
+                            <img src="/assets/images/logo/freshcart-logo.svg"
+                                 alt="eCommerce HTML Template">
+                        </a>
                         <div class="d-flex align-items-center lh-1">
                             <!-- Button -->
                             <button class="navbar-toggler collapsed"
                                     type="button"
+                                    (click)="onToggle()"
                                     aria-controls="navbar-default"
                                     aria-label="Toggle navigation">
                                 <span class="icon-bar top-bar mt-0"></span>
                                 <span class="icon-bar middle-bar"></span>
                                 <span class="icon-bar bottom-bar"></span>
                             </button>
+
+                            <div *ngIf="showToggle">
+                                <a class="navbar-brand"
+                                   routerLink="/">
+                                    <img src="/assets/images/logo/freshcart-logo.svg"
+                                         alt="eCommerce HTML Template">
+                                </a>
+                                <div class="navbar-toggler"
+                                     *ngFor="let category of categoryList$ | async">
+                                    <a class="nav-link"
+                                       [routerLink]="'/categories/'+category.id"
+                                       role="button">{{category.name}}</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -41,7 +60,7 @@
     <nav class="navbar navbar-expand-lg navbar-light navbar-default pt-0 pb-0">
         <div class="container px-0 px-md-3">
             <div class="offcanvas offcanvas-start p-4 p-lg-0">
-                <div class="d-flex justify-content-between align-items-center mb-2 d-block d-lg-none">
+                <div class="d-flex justify-content-between align-items-center mb-2 d-block d-lg-none navbar-toggler">
                     <a routerLink="/">
                         <img src="/assets/images/logo/freshcart-logo.svg"
                              alt="eCommerce HTML Template">
@@ -51,7 +70,7 @@
                             aria-label="Close"></button>
                 </div>
                 <div class="d-block">
-                    <ul class="navbar-nav ">
+                    <ul class="navbar-nav">
                         <li *ngFor="let category of categoryList$ | async"
                             class="nav-item">
                             <a class="nav-link"
