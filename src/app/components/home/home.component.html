@@ -55,7 +55,7 @@
                         <li *ngFor="let category of categoryList$ | async"
                             class="nav-item">
                             <a class="nav-link"
-                               [routerLink]=""
+                               [routerLink]="'/categories/'+category.id"
                                role="button">{{category.name}}</a>
                         </li>
                     </ul>
@@ -76,7 +76,7 @@
                                 *ngFor="let category of categoryList$ | async"
                                 class="nav-item">
                                 <a class="nav-link"
-                                   [routerLink]="''"
+                                   [routerLink]="'/categories/'+category.id"
                                    role="button">{{category.name}}</a>
                             </li>
                         </ul>
@@ -92,7 +92,7 @@
                                 *ngFor="let store of storeList$ | async"
                                 class="nav-item">
                                 <a class="nav-link"
-                                   [routerLink]="''"
+                                   [routerLink]="'/stores/'+store.id"
                                    role="button">{{store.name}}</a>
                             </li>
                         </ul>
