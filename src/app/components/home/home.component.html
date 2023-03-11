@@ -82,6 +82,35 @@
             </div>
         </div>
     </nav>
+    <section class="my-lg-14 my-8">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="mb-8">
+                        <h3 class="mb-0">Shop by category</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xxl-4 g-4">
+                <div *ngFor="let category of categoryList$ | async"
+                     class="col">
+                    <a [routerLink]="'/stores/'+category.id"
+                       class="text-decoration-none text-inherit">
+                        <!-- card -->
+                        <div class="card card-product">
+                            <div class="card-body text-center py-8">
+                                <!-- img -->
+                                <img [src]="category.imageUrl"
+                                     [alt]=""
+                                     class="mb-3"><!-- text -->
+                                <div class="text-truncate">{{category.name}}</div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
 </div>
 <footer class="footer">
     <div class="container">
@@ -127,7 +156,6 @@
                                 *ngFor="let aboutItem of aboutUsList$ | async"
                                 class="nav-item">
                                 <a class="nav-link"
-                                   [routerLink]="''"
                                    role="button">{{aboutItem}}</a>
                             </li>
                         </ul>

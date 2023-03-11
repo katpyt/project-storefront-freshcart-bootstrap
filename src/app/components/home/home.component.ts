@@ -18,6 +18,11 @@ export class HomeComponent {
   readonly storeList$: Observable<StoreModel[]> = this._storeSerive.getAllStores().pipe(shareReplay(1));
   readonly aboutUsList$ = of(["Company", "About", "Blog", "Help Center", "Our value"]);
 
+  showToggle = false;
+  onToggle() {
+    this.showToggle = !this.showToggle;
+  }
+
   constructor(private _categoryService: CategoryService, private _storeSerive: StoreService) {
   }
 }
