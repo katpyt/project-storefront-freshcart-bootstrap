@@ -111,6 +111,64 @@
             </div>
         </div>
     </section>
+    <section class="my-lg-14 my-8">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="mb-8">
+                        <h3 class="mb-0">Fruits & Vegetables</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xxl-4 g-4">
+                <div *ngFor="let product of productsFromFirstFeaturedCategoriesList$ | async"
+                     class="col">
+                    <a [routerLink]="'/stores/'+product.id"
+                       class="text-decoration-none text-inherit">
+                        <!-- card -->
+                        <div class="card card-product">
+                            <div class="card-body text-center py-8">
+                                <!-- img -->
+                                <img [src]="product.imageUrl"
+                                     [alt]=""
+                                     class="mb-3"><!-- text -->
+                                <div class="text-truncate">{{product.name}}</div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="my-lg-14 my-8">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="mb-8">
+                        <h3 class="mb-0">Snack & Munchies</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xxl-4 g-4">
+                <div *ngFor="let product of productsFromSecondFeaturedCategoriesList$ | async"
+                     class="col">
+                    <a [routerLink]="'/stores/'+product.id"
+                       class="text-decoration-none text-inherit">
+                        <!-- card -->
+                        <div class="card card-product">
+                            <div class="card-body text-center py-8">
+                                <!-- img -->
+                                <img [src]="product.imageUrl"
+                                     [alt]=""
+                                     class="mb-3"><!-- text -->
+                                <div class="text-truncate">{{product.name}}</div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
     <section class="my-lg-14 my-8"
              *ngIf="storeList$ | async as stores">
         <div class="container">
