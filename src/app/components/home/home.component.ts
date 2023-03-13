@@ -1,7 +1,8 @@
+import { CurrencyPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 import { combineLatest, from, map, Observable, of, shareReplay, switchMap } from 'rxjs';
 import { ProductModel } from 'src/app/models/product.model';
-import { StoreModel } from 'src/app/models/store.model';
+import { ProductQueryModel } from 'src/app/queries/product.query-model';
 import { StoreQueryModel } from 'src/app/queries/store.query-model';
 import { ProductService } from 'src/app/services/product.service';
 import { StoreService } from 'src/app/services/store.service';
@@ -20,7 +21,6 @@ import { CategoryService } from '../../services/category.service';
 export class HomeComponent {
   readonly categoryList$: Observable<CategoryModel[]> = this._categoryService.getAllCategories().pipe(shareReplay(1));
   readonly productList$: Observable<ProductModel[]> = this._productService.getAllProducts().pipe(shareReplay(1));
-  // readonly storeList$: Observable<StoreModel[]> = this._storeSerive.getAllStores().pipe(shareReplay(1));
   readonly aboutUsList$ = of(["Company", "About", "Blog", "Help Center", "Our value"]);
 
   readonly productsFromFirstFeaturedCategoriesList$ = this._getProductsFromFeaturedCategories(this.productList$, "5");
@@ -40,7 +40,6 @@ export class HomeComponent {
         };
       }, {});
 
-
       return stores.map(store => ({
         id: store.id,
         name: store.name,
@@ -57,15 +56,29 @@ export class HomeComponent {
     this.showToggle = !this.showToggle;
   }
 
-  private _getProductsFromFeaturedCategories(productList$: Observable<ProductModel[]>, categoryId: string) {
+  private _getProductsFromFeaturedCategories(productList$: Observable<ProductModel[]>, categoryId: string): Observable<ProductQueryModel[]> {
     return productList$.pipe(
       map((products) => {
         return products.filter(product => product.categoryId === categoryId)
           .sort((a, b) => { return a.featureValue > b.featureValue ? -1 : 1 })
           .slice(0, 5)
+          .map((product) => ({
+            id: product.id,
+            name: product.name,
+            fixedPriceWithCurrency: product.price,
+            imageUrl: product.imageUrl
+          }))
       })
-    )
+    );
   }
+
+  // .map((products) =>
+  // products.map((product: Pro) => ({
+  //   id: product.id,
+  //   name: product.name,
+  //   fixedPriceWithCurrency: +product.price// | currency: 'USD'
+  // }))
+
 
   private _roundToOneDecimalPlaced(number: number, precision: number) {
     return (Math.round(number) / 1000).toFixed(precision);
