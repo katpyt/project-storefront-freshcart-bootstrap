@@ -8,7 +8,7 @@ import { StoreService } from 'src/app/services/store.service';
 import { TagService } from 'src/app/services/tag.service';
 import { CategoryModel } from '../../models/category.model';
 import { CategoryService } from '../../services/category.service';
-import * as helperFunctions from '../../helperFunctions';
+import helperFunctions from '../../helperFunctions';
 
 @Component({
   selector: 'app-home',
@@ -44,7 +44,7 @@ export class HomeComponent {
         id: store.id,
         name: store.name,
         logoUrl: store.logoUrl.substring(1, store.logoUrl.length),
-        distanceInKilometers: helperFunctions.default.roundToOneDecimalPlaced(+store.distanceInMeters, 1) + " km",
+        distanceInKilometers: helperFunctions.roundToOneDecimalPlaced(+store.distanceInMeters, 1) + " km",
         tagIds: store.tagIds.map(tagId => tagsMap[+tagId])
       }))
     })
@@ -71,16 +71,6 @@ export class HomeComponent {
       })
     );
   }
-
-  // .map((products) =>
-  // products.map((product: Pro) => ({
-  //   id: product.id,
-  //   name: product.name,
-  //   fixedPriceWithCurrency: +product.price// | currency: 'USD'
-  // }))
-
-
-
 
   constructor(private _categoryService: CategoryService, private _storeService: StoreService
     , private _tagService: TagService, private _productService: ProductService) {

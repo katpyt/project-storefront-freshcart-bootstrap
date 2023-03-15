@@ -6,7 +6,9 @@ import { StoreQueryModel } from '../../queries/store.query-model';
 import { ProductModel } from '../../models/product.model';
 import { StoreService } from '../../services/store.service';
 import { ProductService } from '../../services/product.service';
-import helperFunctions from 'src/app/helperFunctions';
+import helperFunctions from '../../helperFunctions';
+import { CategoryModel } from 'src/app/models/category.model';
+import { CategoryService } from 'src/app/services/category.service';
 
 @Component({
   selector: 'app-store-products',
@@ -16,6 +18,8 @@ import helperFunctions from 'src/app/helperFunctions';
 })
 
 export class StoreProductsComponent {
+  readonly categoryList$: Observable<CategoryModel[]> = this._categoryService.getAllCategories().pipe(shareReplay(1));
+
   readonly storeDetails$: Observable<StoreQueryModel> = this._activatedRoute.params.pipe(
     switchMap(data => this._storeService.getOneStore(data['storeId']))
   ).pipe(
@@ -38,6 +42,7 @@ export class StoreProductsComponent {
       map(([products, params]) => products.filter(product => product.storeIds.includes(params['storeId'])))
     );
 
-  constructor(private _activatedRoute: ActivatedRoute, private _storeService: StoreService, private _productService: ProductService) {
+  constructor(private _activatedRoute: ActivatedRoute, private _storeService: StoreService
+    , private _productService: ProductService, private _categoryService: CategoryService) {
   }
 }
