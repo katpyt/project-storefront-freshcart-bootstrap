@@ -21,7 +21,7 @@ import helperFunctions from '../../helperFunctions';
 export class HomeComponent {
   readonly categoryList$: Observable<CategoryModel[]> = this._categoryService.getAllCategories().pipe(shareReplay(1));
   readonly productList$: Observable<ProductModel[]> = this._productService.getAllProducts().pipe(shareReplay(1));
-  readonly aboutUsList$ = of(["Company", "About", "Blog", "Help Center", "Our value"]);
+  // readonly aboutUsList$ = of(["Company", "About", "Blog", "Help Center", "Our value"]);
 
   readonly productsFromFirstFeaturedCategoriesList$ = this._getProductsFromFeaturedCategories(this.productList$, "5");
 

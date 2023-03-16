@@ -1,0 +1,8 @@
+<ul class="navbar-nav align-items-center ">
+    <li *ngFor="let item of categories$ | async"
+        class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle"
+           [routerLink]=""
+           role="button">{{item.name}}</a>
+    </li>
+</ul>

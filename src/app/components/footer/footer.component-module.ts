@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { CategoryProductsComponent } from './category-products.component';
+import { FooterComponent } from './footer.component';
 
 @NgModule({
   imports: [CommonModule, RouterModule],
-  declarations: [CategoryProductsComponent],
+  declarations: [FooterComponent],
   providers: [],
-  exports: [CategoryProductsComponent]
+  exports: [FooterComponent]
 })
-export class CategoryProductsComponentModule {
+export class FooterComponentModule {
 }

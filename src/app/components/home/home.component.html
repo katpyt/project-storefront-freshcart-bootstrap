@@ -1,4 +1,4 @@
-<header>
+<!-- <header>
     <div class="bg-light py-1">
         <div class="container">
             <div class="row">
@@ -25,7 +25,6 @@
                                  alt="eCommerce HTML Template">
                         </a>
                         <div class="d-flex align-items-center lh-1">
-                            <!-- Button -->
                             <button class="navbar-toggler collapsed"
                                     type="button"
                                     (click)="onToggle()"
@@ -55,7 +54,7 @@
             </div>
         </div>
     </div>
-</header>
+</header> -->
 <div class="border-bottom pb-lg-4 pb-3">
     <nav class="navbar navbar-expand-lg navbar-light navbar-default pt-0 pb-0">
         <div class="container px-0 px-md-3">
@@ -94,15 +93,13 @@
             <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xxl-4 g-4">
                 <div *ngFor="let category of categoryList$ | async"
                      class="col">
-                    <a [routerLink]="'/stores/'+category.id"
+                    <a [routerLink]="'/categories/'+category.id"
                        class="text-decoration-none text-inherit">
-                        <!-- card -->
                         <div class="card card-product">
                             <div class="card-body text-center py-8">
-                                <!-- img -->
                                 <img [src]="category.imageUrl"
                                      [alt]=""
-                                     class="mb-3"><!-- text -->
+                                     class="mb-3">
                                 <div class="text-truncate">{{category.name}}</div>
                             </div>
                         </div>
@@ -240,7 +237,7 @@
         </div>
     </section>
 </div>
-<footer class="footer">
+<!-- <footer class="footer">
     <div class="container">
         <div class="row g-4 py-4">
             <div class="col-12 col-md-12 col-lg-4">
@@ -377,4 +374,4 @@
             </div>
         </div>
     </div>
-</footer>
+</footer> -->
