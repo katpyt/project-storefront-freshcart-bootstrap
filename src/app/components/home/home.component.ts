@@ -65,6 +65,10 @@ export class HomeComponent {
             id: product.id,
             name: product.name,
             fixedPriceWithCurrency: product.price,
+            categoryId: product.categoryId,
+            ratingValue: product.ratingValue,
+            ratingCount: product.ratingCount,
+            ratingStars: [],
             imageUrl: product.imageUrl
           }))
       })
