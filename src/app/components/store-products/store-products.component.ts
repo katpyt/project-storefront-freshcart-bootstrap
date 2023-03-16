@@ -6,7 +6,6 @@ import { StoreQueryModel } from '../../queries/store.query-model';
 import { ProductModel } from '../../models/product.model';
 import { StoreService } from '../../services/store.service';
 import { ProductService } from '../../services/product.service';
-import helperFunctions from '../../helperFunctions';
 import { CategoryModel } from 'src/app/models/category.model';
 import { CategoryService } from 'src/app/services/category.service';
 
@@ -28,7 +27,7 @@ export class StoreProductsComponent {
         id: store.id,
         name: store.name,
         logoUrl: store.logoUrl.substring(1, store.logoUrl.length),
-        distanceInKilometers: helperFunctions.roundToOneDecimalPlaced(+store.distanceInMeters, 1) + " km",
+        distanceInKilometers: store.distanceInMeters,
         tagIds: store.tagIds
       }
     }),

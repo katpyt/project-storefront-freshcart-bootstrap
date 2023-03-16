@@ -8,7 +8,6 @@ import { StoreService } from 'src/app/services/store.service';
 import { TagService } from 'src/app/services/tag.service';
 import { CategoryModel } from '../../models/category.model';
 import { CategoryService } from '../../services/category.service';
-import helperFunctions from '../../helperFunctions';
 
 @Component({
   selector: 'app-home',
@@ -21,7 +20,7 @@ import helperFunctions from '../../helperFunctions';
 export class HomeComponent {
   readonly categoryList$: Observable<CategoryModel[]> = this._categoryService.getAllCategories().pipe(shareReplay(1));
   readonly productList$: Observable<ProductModel[]> = this._productService.getAllProducts().pipe(shareReplay(1));
-  readonly aboutUsList$ = of(["Company", "About", "Blog", "Help Center", "Our value"]);
+  // readonly aboutUsList$ = of(["Company", "About", "Blog", "Help Center", "Our value"]);
 
   readonly productsFromFirstFeaturedCategoriesList$ = this._getProductsFromFeaturedCategories(this.productList$, "5");
 
@@ -44,7 +43,7 @@ export class HomeComponent {
         id: store.id,
         name: store.name,
         logoUrl: store.logoUrl.substring(1, store.logoUrl.length),
-        distanceInKilometers: helperFunctions.roundToOneDecimalPlaced(+store.distanceInMeters, 1) + " km",
+        distanceInKilometers: store.distanceInKilometers,
         tagIds: store.tagIds.map(tagId => tagsMap[+tagId])
       }))
     })
@@ -66,6 +65,10 @@ export class HomeComponent {
             id: product.id,
             name: product.name,
             fixedPriceWithCurrency: product.price,
+            categoryId: product.categoryId,
+            ratingValue: product.ratingValue,
+            ratingCount: product.ratingCount,
+            ratingStars: [],
             imageUrl: product.imageUrl
           }))
       })

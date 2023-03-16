@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { ProductModel } from '../models/product.model';
 
 @Injectable({ providedIn: 'root' })
@@ -11,5 +11,14 @@ export class ProductService {
 
     getAllProducts(): Observable<ProductModel[]> {
         return this._httpClient.get<ProductModel[]>('https://6384fca14ce192ac60696c4b.mockapi.io/freshcart-products');
+    }
+
+    getAllProductsforCategory(categoryId: string): Observable<ProductModel[]> {
+        return this._httpClient.get<ProductModel[]>('https://6384fca14ce192ac60696c4b.mockapi.io/freshcart-products')
+            .pipe(
+                map((products) => {
+                    return products.filter(product => product.categoryId === categoryId)
+                })
+            );
     }
 }
