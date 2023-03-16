@@ -10,6 +10,8 @@ import { CollapseModule } from 'ngx-bootstrap/collapse';
 
 @NgModule({
   declarations: [AppComponent],
+  providers: [{ provide: DEFAULT_CURRENCY_CODE, useValue: 'USD' }],
+  bootstrap: [AppComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -17,9 +19,7 @@ import { CollapseModule } from 'ngx-bootstrap/collapse';
     HttpClientModule,
     CollapseModule,
     CommonModule,
-    RouterModule,
-  ],
-  providers: [{ provide: DEFAULT_CURRENCY_CODE, useValue: 'USD' }],
-  bootstrap: [AppComponent],
+    RouterModule
+  ]
 })
 export class AppModule { }

@@ -8,7 +8,6 @@ import { StoreService } from 'src/app/services/store.service';
 import { TagService } from 'src/app/services/tag.service';
 import { CategoryModel } from '../../models/category.model';
 import { CategoryService } from '../../services/category.service';
-import helperFunctions from '../../helperFunctions';
 
 @Component({
   selector: 'app-home',
@@ -44,7 +43,7 @@ export class HomeComponent {
         id: store.id,
         name: store.name,
         logoUrl: store.logoUrl.substring(1, store.logoUrl.length),
-        distanceInKilometers: helperFunctions.roundToOneDecimalPlaced(+store.distanceInMeters, 1) + " km",
+        distanceInKilometers: store.distanceInKilometers,
         tagIds: store.tagIds.map(tagId => tagsMap[+tagId])
       }))
     })

@@ -6,8 +6,6 @@ import { StoreProductsComponent } from './components/store-products/store-produc
 import { HomeComponentModule } from './components/home/home.component-module';
 import { CategoryProductsComponentModule } from './components/category-products/category-products.component-module';
 import { StoreProductsComponentModule } from './components/store-products/store-products.component-module';
-import { HeaderComponentModule } from './components/header/header.component-module';
-import { FooterComponentModule } from './components/footer/footer.component-module';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -16,7 +14,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes), HeaderComponentModule, FooterComponentModule, HomeComponentModule, CategoryProductsComponentModule, StoreProductsComponentModule],
-  exports: [RouterModule, HeaderComponentModule, FooterComponentModule],
+  imports: [RouterModule.forRoot(routes), HomeComponentModule, CategoryProductsComponentModule, StoreProductsComponentModule],
+  exports: [RouterModule],
 })
 export class AppRoutingModule { }
