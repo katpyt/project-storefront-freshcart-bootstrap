@@ -32,18 +32,16 @@ export class CategoryProductsComponent {
   );
 
   readonly filterControl: FormControl = new FormControl('Featured');
-  readonly filterValues: Observable<string[]> = of([
-    'Featured',
-    'Price Low to high',
-    'Price High to Low',
-    'Avg. Rating'
-  ]);
+  readonly filterValues: Observable<string[]> = of(['Featured', 'Price Low to high', 'Price High to Low', 'Avg. Rating']);
   readonly filterAndSortValues$: Observable<FilterAndSortModel[]> = of([
     { id: 1, filterBy: 'featureValue', filterName: 'Featured', sortDirection: 'desc' },
     { id: 2, filterBy: 'price', filterName: 'Price Low to high', sortDirection: 'asc' },
     { id: 3, filterBy: 'price', filterName: 'Price High to Low', sortDirection: 'desc' },
     { id: 4, filterBy: 'ratingValue', filterName: 'Avg. Rating', sortDirection: 'desc' }
   ]);
+
+  readonly pages$: Observable<number[]> = of([1, 2, 3]);
+  readonly limits$: Observable<number[]> = of([5, 10, 15]);
 
   readonly products$: Observable<ProductQueryModel[]> = combineLatest([
     this.filterControl.valueChanges.pipe(startWith('Featured')),

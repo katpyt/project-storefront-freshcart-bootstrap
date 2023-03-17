@@ -120,13 +120,12 @@
                         <div class="col">
                             <nav>
                                 <p>Pagination</p>
-                                <ul class="pagination">
-                                    <li class="page-item "><a class="page-link  mx-1 active"
-                                           href="#">5</a></li>
-                                    <li class="page-item"><a class="page-link mx-1 text-body"
-                                           href="#">10</a></li>
-                                    <li class="page-item"><a class="page-link mx-1 text-body"
-                                           href="#">15</a></li>
+                                <ul class="pagination"
+                                    *ngFor="let page of pages$ | async">
+                                    <li class="page-item ">
+                                        <a class="page-link  mx-1 active"
+                                           href="#">{{page}}</a>
+                                    </li>
                                 </ul>
                             </nav>
                         </div>
