@@ -1,29 +1,4 @@
 <div class="border-bottom pb-lg-4 pb-3">
-    <nav class="navbar navbar-expand-lg navbar-light navbar-default pt-0 pb-0">
-        <div class="container px-0 px-md-3">
-            <div class="offcanvas offcanvas-start p-4 p-lg-0">
-                <div class="d-flex justify-content-between align-items-center mb-2 d-block d-lg-none navbar-toggler">
-                    <a routerLink="/">
-                        <img src="assets/images/logo/freshcart-logo.svg"
-                             alt="eCommerce HTML Template">
-                    </a>
-                    <button type="button"
-                            class="btn-close"
-                            aria-label="Close"></button>
-                </div>
-                <div class="d-block">
-                    <ul class="navbar-nav">
-                        <li *ngFor="let category of categoryList$ | async"
-                            class="nav-item">
-                            <a class="nav-link"
-                               [routerLink]="'/categories/'+category.id"
-                               role="button">{{category.name}}</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </nav>
     <section class="my-lg-14 my-8">
         <div class="container">
             <div class="row">

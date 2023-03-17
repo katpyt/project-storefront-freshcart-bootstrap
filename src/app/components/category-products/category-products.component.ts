@@ -3,10 +3,10 @@ import { FormControl } from '@angular/forms';
 import { ActivatedRoute, Params } from '@angular/router';
 import { combineLatest, Observable, of, shareReplay } from 'rxjs';
 import { map, startWith, switchMap } from 'rxjs/operators';
-import { FilterAndSortModel } from 'src/app/models/filter-and-sort.model';
-import { ProductModel } from 'src/app/models/product.model';
-import { ProductQueryModel } from 'src/app/queries/product.query-model';
-import { ProductService } from 'src/app/services/product.service';
+import { FilterAndSortModel } from '../../models/filter-and-sort.model';
+import { ProductModel } from '../../models/product.model';
+import { ProductQueryModel } from '../../queries/product.query-model';
+import { ProductService } from '../../services/product.service';
 import { CategoryModel } from '../../models/category.model';
 import { CategoryService } from '../../services/category.service';
 
