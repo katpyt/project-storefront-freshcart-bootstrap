@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { ActivatedRoute, Params } from '@angular/router';
-import { combineLatest, from, Observable, of, shareReplay } from 'rxjs';
+import { combineLatest, Observable, of, shareReplay } from 'rxjs';
 import { map, startWith, switchMap } from 'rxjs/operators';
 import { FilterAndSortModel } from 'src/app/models/filter-and-sort.model';
 import { ProductModel } from 'src/app/models/product.model';
@@ -31,7 +31,13 @@ export class CategoryProductsComponent {
     map(([categories, params]) => categories.filter(cat => cat.id === params['categoryId']).map(c => c.name))
   );
 
-  readonly filterControl: FormControl = new FormControl({ filterBy: '', filterName: '', sortDirection: '' });
+  readonly filterControl: FormControl = new FormControl('Featured');
+  readonly filterValues: Observable<string[]> = of([
+    'Featured',
+    'Price Low to high',
+    'Price High to Low',
+    'Avg. Rating'
+  ]);
   readonly filterAndSortValues$: Observable<FilterAndSortModel[]> = of([
     { id: 1, filterBy: 'featureValue', filterName: 'Featured', sortDirection: 'desc' },
     { id: 2, filterBy: 'price', filterName: 'Price Low to high', sortDirection: 'asc' },
@@ -39,33 +45,29 @@ export class CategoryProductsComponent {
     { id: 4, filterBy: 'ratingValue', filterName: 'Avg. Rating', sortDirection: 'desc' }
   ]);
 
-  readonly filterFormValues$ = this.filterControl.valueChanges.pipe(
-    startWith({ filterBy: 'featureValue', filterName: 'Featured', sortDirection: 'desc' })
-  );
-
   readonly products$: Observable<ProductQueryModel[]> = combineLatest([
-    this.filterFormValues$,
-    this.productsFromCategory$
+    this.filterControl.valueChanges.pipe(startWith('Featured')),
+    this.productsFromCategory$,
+    this.filterAndSortValues$
   ]).pipe(
-    map(([filters, products]) => {
+    map(([filters, products, filterValues]) => {
       if (!filters) {
         return products;
       }
 
-      // const paramsMap = filters.reduce((a: any, b: any) => ({
-      //   ...a,
-      //   [b.id]: b.filterBy
-      // }))
+      const filterMap: Record<string, string> = filterValues.reduce(
+        (a, b) => {
+          return { ...a, [b.filterName]: b.filterBy + '-' + b.sortDirection }
+        }, {}
+      )
 
-      console.log('filters [' + filters.id + ']');
-      console.log('sortDirection [' + filters?.sortDirection + ']');
-      console.log('filterBy [' + filters?.filterBy + ']');
+      const filterAndSortCurrentValues = filterMap[filters].split('-');
 
       return products.sort((a: Record<string, any>, b: Record<string, any>) => {
-        if (filters?.sortDirection === 'asc') {
-          return a[filters?.filterBy] > b[filters?.filterBy] ? 1 : -1
+        if (filterAndSortCurrentValues[1] === 'asc') {
+          return a[filterAndSortCurrentValues[0]] > b[filterAndSortCurrentValues[0]] ? 1 : -1
         }
-        return a[filters?.filterBy] > b[filters?.filterBy] ? -1 : 1
+        return a[filterAndSortCurrentValues[0]] > b[filterAndSortCurrentValues[0]] ? -1 : 1
       });
     })
   ).pipe(

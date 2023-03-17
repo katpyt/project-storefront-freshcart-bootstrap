@@ -51,8 +51,8 @@
 
                                     <select class="form-select"
                                             [formControl]="filterControl">
-                                        <option *ngFor="let filterAndSort of filterAndSortValues$ | async"
-                                                [value]="filterAndSort">{{filterAndSort.filterName}}</option>
+                                        <option *ngFor="let filterValue of filterValues | async"
+                                                [value]="filterValue">{{filterValue}}</option>
                                     </select>
                                 </div>
                             </div>
