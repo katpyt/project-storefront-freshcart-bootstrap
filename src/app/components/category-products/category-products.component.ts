@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { ActivatedRoute, Params } from '@angular/router';
-import { combineLatest, Observable, shareReplay } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { combineLatest, from, Observable, of, shareReplay } from 'rxjs';
+import { map, startWith, switchMap } from 'rxjs/operators';
+import { ProductModel } from 'src/app/models/product.model';
 import { ProductQueryModel } from 'src/app/queries/product.query-model';
 import { ProductService } from 'src/app/services/product.service';
 import { CategoryModel } from '../../models/category.model';
@@ -17,20 +19,52 @@ import { CategoryService } from '../../services/category.service';
 export class CategoryProductsComponent {
   readonly categories$: Observable<CategoryModel[]> = this._categoryService.getAllCategories().pipe(shareReplay(1));
   readonly params$: Observable<Params> = this._activatedRoute.params;
+  // readonly productsAll$: Observable<ProductModel[]> = this._productService.getAllProducts().pipe(shareReplay(1));
+  readonly productsFromCategory$: Observable<ProductModel[]> = this._activatedRoute.params.pipe(
+    switchMap(params => this._productService.getAllProductsforCategory(params['categoryId']))
+  );
 
   readonly categoryName$ = combineLatest([
     this.categories$,
     this.params$
   ]).pipe(
-    map(([categories, params]) => categories.filter(cat => cat.id === params['categoryId']).map(c => c.name)
-    ));
+    map(([categories, params]) => categories.filter(cat => cat.id === params['categoryId']).map(c => c.name))
+  );
 
-  readonly products$: Observable<ProductQueryModel[]> = this.params$.pipe(
-    switchMap(data => this._productService.getAllProductsforCategory(data['categoryId']))
+  readonly filterControl: FormControl = new FormControl('');
+  readonly filterAndSortValues$ = of([
+    { id: 1, filterBy: 'featureValue', filterName: 'Featured', sortDirection: 'desc' },
+    { id: 2, filterBy: 'price', filterName: 'Price Low to high', sortDirection: 'asc' },
+    { id: 3, filterBy: 'price', filterName: 'Price High to Low', sortDirection: 'desc' },
+    { id: 4, filterBy: 'ratingValue', filterName: 'Avg. Rating', sortDirection: 'desc' }
+  ]);
+
+  readonly filterFormValues$ = this.filterControl.valueChanges.pipe(
+    startWith({ filterBy: 'featureValue', filterName: 'Featured', sortDirection: 'desc' })
+  );
+
+  readonly products$: Observable<ProductQueryModel[]> = combineLatest([
+    this.filterFormValues$,
+    this.productsFromCategory$
+  ]).pipe(
+    map(([filters, products]) => {
+      if (!filters) {
+        return products.filter(product => product.categoryId === "5");
+      }
+
+      console.log('sortDirection [' + filters?.sortDirection + ']');
+      console.log('filterBy [' + filters?.filterBy + ']');
+
+      return products.sort((a: Record<string, any>, b: Record<string, any>) => {
+        if (filters?.sortDirection === 'asc') {
+          return a[filters?.filterBy] > b[filters?.filterBy] ? 1 : -1
+        }
+        return a[filters?.filterBy] > b[filters?.filterBy] ? -1 : 1
+      });
+    })
   ).pipe(
-    map((products) => products.map((product) => {
-
-      return {
+    map((products) => products.map(product =>
+      ({
         id: product.id,
         name: product.name,
         fixedPriceWithCurrency: product.price,
@@ -39,11 +73,11 @@ export class CategoryProductsComponent {
         ratingCount: product.ratingCount,
         ratingStars: this._getStarsValues(product.ratingValue),
         imageUrl: product.imageUrl
-      }
-    }))
+      }) as ProductQueryModel)
+    )
   );
 
-  private _getStarsValues(ratingValues: number) {
+  private _getStarsValues(ratingValues: number): string[] {
     return [0, 0, 0, 0, 0].map((_, i) => {
       if (ratingValues >= i + 1) {
         return '-fill';
