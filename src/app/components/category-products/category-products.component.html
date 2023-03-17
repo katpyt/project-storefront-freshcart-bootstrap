@@ -48,10 +48,11 @@
                         <div class="d-md-flex justify-content-between align-items-center">
                             <div class="d-flex mt-2 mt-lg-0">
                                 <div>
+
                                     <select class="form-select"
-                                            formControlName="filterControl">
-                                        <option *ngFor="let item of filterAndSortValues$ | async"
-                                                [value]="item.id">{{item.filterName}}</option>
+                                            [formControl]="filterControl">
+                                        <option *ngFor="let filterAndSort of filterAndSortValues$ | async"
+                                                [value]="filterAndSort">{{filterAndSort.filterName}}</option>
                                     </select>
                                 </div>
                             </div>

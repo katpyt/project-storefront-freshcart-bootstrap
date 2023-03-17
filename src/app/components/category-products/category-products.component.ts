@@ -3,6 +3,7 @@ import { FormControl } from '@angular/forms';
 import { ActivatedRoute, Params } from '@angular/router';
 import { combineLatest, from, Observable, of, shareReplay } from 'rxjs';
 import { map, startWith, switchMap } from 'rxjs/operators';
+import { FilterAndSortModel } from 'src/app/models/filter-and-sort.model';
 import { ProductModel } from 'src/app/models/product.model';
 import { ProductQueryModel } from 'src/app/queries/product.query-model';
 import { ProductService } from 'src/app/services/product.service';
@@ -30,8 +31,8 @@ export class CategoryProductsComponent {
     map(([categories, params]) => categories.filter(cat => cat.id === params['categoryId']).map(c => c.name))
   );
 
-  readonly filterControl: FormControl = new FormControl('');
-  readonly filterAndSortValues$ = of([
+  readonly filterControl: FormControl = new FormControl({ filterBy: '', filterName: '', sortDirection: '' });
+  readonly filterAndSortValues$: Observable<FilterAndSortModel[]> = of([
     { id: 1, filterBy: 'featureValue', filterName: 'Featured', sortDirection: 'desc' },
     { id: 2, filterBy: 'price', filterName: 'Price Low to high', sortDirection: 'asc' },
     { id: 3, filterBy: 'price', filterName: 'Price High to Low', sortDirection: 'desc' },
@@ -48,9 +49,15 @@ export class CategoryProductsComponent {
   ]).pipe(
     map(([filters, products]) => {
       if (!filters) {
-        return products.filter(product => product.categoryId === "5");
+        return products;
       }
 
+      // const paramsMap = filters.reduce((a: any, b: any) => ({
+      //   ...a,
+      //   [b.id]: b.filterBy
+      // }))
+
+      console.log('filters [' + filters.id + ']');
       console.log('sortDirection [' + filters?.sortDirection + ']');
       console.log('filterBy [' + filters?.filterBy + ']');
 
