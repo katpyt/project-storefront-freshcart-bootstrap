@@ -13,7 +13,7 @@ export class ProductService {
         return this._httpClient.get<ProductModel[]>('https://6384fca14ce192ac60696c4b.mockapi.io/freshcart-products');
     }
 
-    getAllProductsforCategory(categoryId: string): Observable<ProductModel[]> {
+    getAllProductsForCategory(categoryId: string): Observable<ProductModel[]> {
         return this._httpClient.get<ProductModel[]>('https://6384fca14ce192ac60696c4b.mockapi.io/freshcart-products')
             .pipe(
                 map((products) => {

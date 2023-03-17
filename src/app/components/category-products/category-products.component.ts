@@ -19,9 +19,8 @@ import { CategoryService } from '../../services/category.service';
 export class CategoryProductsComponent {
   readonly categories$: Observable<CategoryModel[]> = this._categoryService.getAllCategories().pipe(shareReplay(1));
   readonly params$: Observable<Params> = this._activatedRoute.params;
-  // readonly productsAll$: Observable<ProductModel[]> = this._productService.getAllProducts().pipe(shareReplay(1));
-  readonly productsFromCategory$: Observable<ProductModel[]> = this._activatedRoute.params.pipe(
-    switchMap(params => this._productService.getAllProductsforCategory(params['categoryId']))
+  readonly productsFromCategory$: Observable<ProductModel[]> = this.params$.pipe(
+    switchMap(params => this._productService.getAllProductsForCategory(params['categoryId']))
   );
 
   readonly categoryName$ = combineLatest([
@@ -63,18 +62,16 @@ export class CategoryProductsComponent {
       });
     })
   ).pipe(
-    map((products) => products.map(product =>
-      ({
-        id: product.id,
-        name: product.name,
-        fixedPriceWithCurrency: product.price,
-        categoryId: product.categoryId,
-        ratingValue: product.ratingValue,
-        ratingCount: product.ratingCount,
-        ratingStars: this._getStarsValues(product.ratingValue),
-        imageUrl: product.imageUrl
-      }) as ProductQueryModel)
-    )
+    map((products) => products.map(product => ({
+      id: product.id,
+      name: product.name,
+      fixedPriceWithCurrency: product.price,
+      categoryId: product.categoryId,
+      ratingValue: product.ratingValue,
+      ratingCount: product.ratingCount,
+      ratingStars: this._getStarsValues(product.ratingValue),
+      imageUrl: product.imageUrl
+    })))
   );
 
   private _getStarsValues(ratingValues: number): string[] {
