@@ -107,13 +107,17 @@
                         <div class="col">
                             <nav>
                                 <p>Limit</p>
-                                <ul class="pagination">
-                                    <li class="page-item "><a class="page-link  mx-1 active"
-                                           href="#">1</a></li>
-                                    <li class="page-item"><a class="page-link mx-1 text-body"
-                                           href="#">2</a></li>
-                                    <li class="page-item"><a class="page-link mx-1 text-body"
-                                           href="#">3</a></li>
+                                <ul class="pagination"
+                                    *ngIf="limitation$ | async as limitation;">
+                                    <li class="page-item"
+                                        *ngFor="let limit of limits$ | async">
+                                        <a (click)="onLimitSizeChanged(limit)"
+                                           [ngClass]="limit === limitation ? 'page-link active' : 'page-link text-body'">{{limit}}</a>
+                                    </li>
+                                    <!-- <li class="page-item">
+                                        <a class="page-link text-body"
+                                           href="#">10</a>
+                                    </li> -->
                                 </ul>
                             </nav>
                         </div>
@@ -121,10 +125,11 @@
                             <nav>
                                 <p>Pagination</p>
                                 <ul class="pagination"
-                                    *ngFor="let page of pages$ | async">
-                                    <li class="page-item ">
-                                        <a class="page-link  mx-1 active"
-                                           href="#">{{page}}</a>
+                                    *ngIf="pagination$ | async as pagination;">
+                                    <li class="page-item"
+                                        *ngFor="let page of pages$ | async">
+                                        <a [ngClass]="page === pagination ? 'page-link active' : 'page-link text-body'"
+                                           (click)="onPageSizeChanged($event, page)">{{page}}</a>
                                     </li>
                                 </ul>
                             </nav>

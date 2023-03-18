@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { ActivatedRoute, Params } from '@angular/router';
-import { combineLatest, Observable, of, shareReplay } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of, shareReplay } from 'rxjs';
 import { map, startWith, switchMap } from 'rxjs/operators';
 import { FilterAndSortModel } from '../../models/filter-and-sort.model';
 import { ProductModel } from '../../models/product.model';
@@ -40,17 +40,47 @@ export class CategoryProductsComponent {
     { id: 4, filterBy: 'ratingValue', filterName: 'Avg. Rating', sortDirection: 'desc' }
   ]);
 
-  readonly pages$: Observable<number[]> = of([1, 2, 3]);
   readonly limits$: Observable<number[]> = of([5, 10, 15]);
+  readonly pages$: Observable<number[]> = of([1, 2, 3]);
+
+  readonly initialLimitValue: number = 5;
+  readonly initialPageValue: number = 1;
+
+  private _limitationSubject: BehaviorSubject<number> = new BehaviorSubject<number>(this.initialLimitValue);
+  public limitation$: Observable<number> = this._limitationSubject
+    .asObservable()
+    .pipe(shareReplay(1));
+
+  private _paginationSubject: BehaviorSubject<number> = new BehaviorSubject<number>(this.initialPageValue);
+  public pagination$: Observable<number> = this._paginationSubject
+    .asObservable()
+    .pipe(shareReplay(1));
+
+  onPageSizeChanged(event: Event, page: number) {
+    // console.log(event);
+    console.log(page);
+
+    this._paginationSubject.next(page);
+  }
+  onLimitSizeChanged(limit: number) {
+    console.log(limit);
+
+    this._limitationSubject.next(limit);
+  }
 
   readonly products$: Observable<ProductQueryModel[]> = combineLatest([
     this.filterControl.valueChanges.pipe(startWith('Featured')),
     this.productsFromCategory$,
-    this.filterAndSortValues$
+    this.filterAndSortValues$,
+    this.limitation$,
+    this.pagination$
   ]).pipe(
-    map(([filters, products, filterValues]) => {
+    map(([filters, products, filterValues, limit, page]) => {
+      const limitStart = limit * (page - 1);
+      const limitEnd = limit * (page - 1) + limit;
+
       if (!filters) {
-        return products;
+        return products.slice(limitStart, limitEnd);
       }
 
       const filterMap: Record<string, string> = filterValues.reduce(
@@ -66,7 +96,7 @@ export class CategoryProductsComponent {
           return a[filterAndSortCurrentValues[0]] > b[filterAndSortCurrentValues[0]] ? 1 : -1
         }
         return a[filterAndSortCurrentValues[0]] > b[filterAndSortCurrentValues[0]] ? -1 : 1
-      });
+      }).slice(limitStart, limitEnd);
     })
   ).pipe(
     map((products) => products.map(product => ({
