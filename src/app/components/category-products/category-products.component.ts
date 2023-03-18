@@ -44,18 +44,14 @@ export class CategoryProductsComponent {
     priceFrom: new FormControl(''),
     priceTo: new FormControl('')
   });
-
-  // private _priceFromSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  // public priceFrom$: Observable<string> = this._priceFromSubject
-  //   .asObservable()
-  //   .pipe(shareReplay(1));
-
-  // private _priceToSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
-  // public priceTo$: Observable<string> = this._priceToSubject
-  //   .asObservable()
-  //   .pipe(shareReplay(1));
-
   readonly filterPriceValues$ = this.filtersForm.valueChanges.pipe(startWith({ priceFrom: '', priceTo: '' }));
+
+  readonly ratingStartValuesForFilter$: Observable<number[]> = of([5, 4, 3, 2]);
+  readonly ratingValuesForFilter$: Observable<string[][]> = this.ratingStartValuesForFilter$.pipe(
+    map(items => items.map(item => this._getStarsValues(item)))
+  );
+  readonly ratingForm: FormControl = new FormControl('');
+  readonly filterRatingValues$ = this.ratingForm.valueChanges.pipe(startWith(''));
 
   readonly limits$: Observable<number[]> = of([5, 10, 15]);
   readonly pages$: Observable<number[]> = of([1, 2, 3]);
@@ -75,15 +71,11 @@ export class CategoryProductsComponent {
   readonly filter: FormGroup = new FormGroup({ priceFrom: new FormControl() });
   readonly filters: FormGroup = new FormGroup({ priceFrom: new FormControl(), priceTo: new FormControl() });
 
-  onPageSizeChanged(event: Event, page: number) {
+  onPageSizeChanged(page: number) {
     this._paginationSubject.next(page);
   }
   onLimitSizeChanged(limit: number) {
     this._limitationSubject.next(limit);
-  }
-
-  onPriceFromChanged(event: Event) {
-    console.log(event);
   }
 
   readonly products$: Observable<ProductQueryModel[]> = combineLatest([
@@ -92,11 +84,16 @@ export class CategoryProductsComponent {
     this.filterAndSortValues$,
     this.limitation$,
     this.pagination$,
-    this.filterPriceValues$
+    this.filterPriceValues$,
+    this.filterRatingValues$
   ]).pipe(
-    map(([filters, products, filterValues, limit, page, filterPriceValues]) => {
-      const limitStart = limit * (page - 1);
-      const limitEnd = limit * (page - 1) + limit;
+    map(([filters, products, filterValues, limit, page, filterPriceValues, filterRatingValues]) => {
+
+      const limitStart: number = limit * (page - 1);
+      const limitEnd: number = limit * (page - 1) + limit;
+
+      const ratingValueFromFilter: number = String(filterRatingValues).split(',')
+        .reduce((acc: number, curr: string) => (curr === '-fill' ? acc + 1 : acc), 0);
 
       if (!filters) {
         return products.slice(limitStart, limitEnd);
@@ -122,6 +119,9 @@ export class CategoryProductsComponent {
         })
         .filter((product) => {
           return filterPriceValues.priceTo ? product.price <= +filterPriceValues.priceTo : true
+        })
+        .filter((product) => {
+          return ratingValueFromFilter ? Math.floor(product.ratingValue) === ratingValueFromFilter : true
         })
         .slice(limitStart, limitEnd);
     })
