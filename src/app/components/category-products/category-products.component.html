@@ -28,6 +28,25 @@
                             </li>
                         </ul>
                     </div>
+                    <div class="offcanvas-body ps-lg-2 pt-lg-0">
+                        <h5 class="mb-3">
+                            Price
+                        </h5>
+                        <div class="my-4">
+                            <form [formGroup]="filtersForm">
+                                <input type="text"
+                                       type="number"
+                                       class="form-control mb-3"
+                                       formControlName="priceFrom"
+                                       placeholder="Price From">
+                                <input type="text"
+                                       type="number"
+                                       class="form-control mb-3"
+                                       formControlName="priceTo"
+                                       placeholder="Price To">
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </aside>
             <section class="col-lg-9 col-md-12">
