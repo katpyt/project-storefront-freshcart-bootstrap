@@ -30,10 +30,30 @@
                     </div>
                     <div class="offcanvas-body ps-lg-2 pt-lg-0">
                         <h5 class="mb-3">
+                            Stores
+                        </h5>
+                        <div class="my-4">
+                            <form [formGroup]="storeFiltersForm">
+                                <div *ngFor="let store of stores$ | async"
+                                     class="form-check mb-2">
+                                    <input [id]="store"
+                                           class="form-check-input"
+                                           type="checkbox"
+                                           [formControlName]="store.id"
+                                           [value]="store.id"
+                                           (change)="onSelected($event)" />
+                                    <label [for]="store"
+                                           class="form-check-label">{{store.name}}</label>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="offcanvas-body ps-lg-2 pt-lg-0">
+                        <h5 class="mb-3">
                             Price
                         </h5>
                         <div class="my-4">
-                            <form [formGroup]="filtersForm">
+                            <form [formGroup]="priceFiltersForm">
                                 <input type="text"
                                        type="number"
                                        class="form-control mb-3"
