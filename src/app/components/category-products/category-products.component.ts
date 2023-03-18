@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { ActivatedRoute, Params } from '@angular/router';
-import { combineLatest, Observable, of, shareReplay } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, of, shareReplay } from 'rxjs';
 import { map, startWith, switchMap } from 'rxjs/operators';
-import { FilterAndSortModel } from 'src/app/models/filter-and-sort.model';
-import { ProductModel } from 'src/app/models/product.model';
-import { ProductQueryModel } from 'src/app/queries/product.query-model';
-import { ProductService } from 'src/app/services/product.service';
+import { FilterAndSortModel } from '../../models/filter-and-sort.model';
+import { ProductModel } from '../../models/product.model';
+import { ProductQueryModel } from '../../queries/product.query-model';
+import { ProductService } from '../../services/product.service';
 import { CategoryModel } from '../../models/category.model';
 import { CategoryService } from '../../services/category.service';
 
@@ -32,12 +32,7 @@ export class CategoryProductsComponent {
   );
 
   readonly filterControl: FormControl = new FormControl('Featured');
-  readonly filterValues: Observable<string[]> = of([
-    'Featured',
-    'Price Low to high',
-    'Price High to Low',
-    'Avg. Rating'
-  ]);
+  readonly filterValues: Observable<string[]> = of(['Featured', 'Price Low to high', 'Price High to Low', 'Avg. Rating']);
   readonly filterAndSortValues$: Observable<FilterAndSortModel[]> = of([
     { id: 1, filterBy: 'featureValue', filterName: 'Featured', sortDirection: 'desc' },
     { id: 2, filterBy: 'price', filterName: 'Price Low to high', sortDirection: 'asc' },
@@ -45,14 +40,47 @@ export class CategoryProductsComponent {
     { id: 4, filterBy: 'ratingValue', filterName: 'Avg. Rating', sortDirection: 'desc' }
   ]);
 
+  readonly limits$: Observable<number[]> = of([5, 10, 15]);
+  readonly pages$: Observable<number[]> = of([1, 2, 3]);
+
+  readonly initialLimitValue: number = 5;
+  readonly initialPageValue: number = 1;
+
+  private _limitationSubject: BehaviorSubject<number> = new BehaviorSubject<number>(this.initialLimitValue);
+  public limitation$: Observable<number> = this._limitationSubject
+    .asObservable()
+    .pipe(shareReplay(1));
+
+  private _paginationSubject: BehaviorSubject<number> = new BehaviorSubject<number>(this.initialPageValue);
+  public pagination$: Observable<number> = this._paginationSubject
+    .asObservable()
+    .pipe(shareReplay(1));
+
+  onPageSizeChanged(event: Event, page: number) {
+    // console.log(event);
+    console.log(page);
+
+    this._paginationSubject.next(page);
+  }
+  onLimitSizeChanged(limit: number) {
+    console.log(limit);
+
+    this._limitationSubject.next(limit);
+  }
+
   readonly products$: Observable<ProductQueryModel[]> = combineLatest([
     this.filterControl.valueChanges.pipe(startWith('Featured')),
     this.productsFromCategory$,
-    this.filterAndSortValues$
+    this.filterAndSortValues$,
+    this.limitation$,
+    this.pagination$
   ]).pipe(
-    map(([filters, products, filterValues]) => {
+    map(([filters, products, filterValues, limit, page]) => {
+      const limitStart = limit * (page - 1);
+      const limitEnd = limit * (page - 1) + limit;
+
       if (!filters) {
-        return products;
+        return products.slice(limitStart, limitEnd);
       }
 
       const filterMap: Record<string, string> = filterValues.reduce(
@@ -68,7 +96,7 @@ export class CategoryProductsComponent {
           return a[filterAndSortCurrentValues[0]] > b[filterAndSortCurrentValues[0]] ? 1 : -1
         }
         return a[filterAndSortCurrentValues[0]] > b[filterAndSortCurrentValues[0]] ? -1 : 1
-      });
+      }).slice(limitStart, limitEnd);
     })
   ).pipe(
     map((products) => products.map(product => ({

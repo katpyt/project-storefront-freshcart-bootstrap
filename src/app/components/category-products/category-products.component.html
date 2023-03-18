@@ -1,4 +1,4 @@
-<div class="mt-8 mb-lg-14 mb-8">{{filterControl.valueChanges | async | json}}
+<div class="mt-8 mb-lg-14 mb-8">
     <div class="container">
         <div class="row gx-10">
             <aside class="col-lg-3 col-md-4 mb-6 mb-md-0">
@@ -101,6 +101,38 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                    <div class="row mt-8">
+                        <div class="col">
+                            <nav>
+                                <p>Limit</p>
+                                <ul class="pagination"
+                                    *ngIf="limitation$ | async as limitation;">
+                                    <li class="page-item"
+                                        *ngFor="let limit of limits$ | async">
+                                        <a (click)="onLimitSizeChanged(limit)"
+                                           [ngClass]="limit === limitation ? 'page-link active' : 'page-link text-body'">{{limit}}</a>
+                                    </li>
+                                    <!-- <li class="page-item">
+                                        <a class="page-link text-body"
+                                           href="#">10</a>
+                                    </li> -->
+                                </ul>
+                            </nav>
+                        </div>
+                        <div class="col">
+                            <nav>
+                                <p>Pagination</p>
+                                <ul class="pagination"
+                                    *ngIf="pagination$ | async as pagination;">
+                                    <li class="page-item"
+                                        *ngFor="let page of pages$ | async">
+                                        <a [ngClass]="page === pagination ? 'page-link active' : 'page-link text-body'"
+                                           (click)="onPageSizeChanged($event, page)">{{page}}</a>
+                                    </li>
+                                </ul>
+                            </nav>
                         </div>
                     </div>
                 </div>
