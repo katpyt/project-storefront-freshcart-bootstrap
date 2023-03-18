@@ -1,14 +1,14 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute, Params } from '@angular/router';
-import { BehaviorSubject, combineLatest, Observable, of, shareReplay } from 'rxjs';
-import { map, startWith, switchMap } from 'rxjs/operators';
-import { FilterAndSortModel } from '../../models/filter-and-sort.model';
-import { ProductModel } from '../../models/product.model';
-import { ProductQueryModel } from '../../queries/product.query-model';
-import { ProductService } from '../../services/product.service';
+import { BehaviorSubject, Observable, combineLatest, of, shareReplay } from 'rxjs';
+import { filter, map, startWith, switchMap } from 'rxjs/operators';
 import { CategoryModel } from '../../models/category.model';
+import { ProductModel } from '../../models/product.model';
+import { FilterAndSortModel } from '../../models/filter-and-sort.model';
+import { ProductQueryModel } from '../../queries/product.query-model';
 import { CategoryService } from '../../services/category.service';
+import { ProductService } from '../../services/product.service';
 
 @Component({
   selector: 'app-category-products',
@@ -40,6 +40,23 @@ export class CategoryProductsComponent {
     { id: 4, filterBy: 'ratingValue', filterName: 'Avg. Rating', sortDirection: 'desc' }
   ]);
 
+  readonly filtersForm: FormGroup = new FormGroup({
+    priceFrom: new FormControl(''),
+    priceTo: new FormControl('')
+  });
+
+  // private _priceFromSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  // public priceFrom$: Observable<string> = this._priceFromSubject
+  //   .asObservable()
+  //   .pipe(shareReplay(1));
+
+  // private _priceToSubject: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  // public priceTo$: Observable<string> = this._priceToSubject
+  //   .asObservable()
+  //   .pipe(shareReplay(1));
+
+  readonly filterPriceValues$ = this.filtersForm.valueChanges.pipe(startWith({ priceFrom: '', priceTo: '' }));
+
   readonly limits$: Observable<number[]> = of([5, 10, 15]);
   readonly pages$: Observable<number[]> = of([1, 2, 3]);
 
@@ -55,17 +72,18 @@ export class CategoryProductsComponent {
   public pagination$: Observable<number> = this._paginationSubject
     .asObservable()
     .pipe(shareReplay(1));
+  readonly filter: FormGroup = new FormGroup({ priceFrom: new FormControl() });
+  readonly filters: FormGroup = new FormGroup({ priceFrom: new FormControl(), priceTo: new FormControl() });
 
   onPageSizeChanged(event: Event, page: number) {
-    // console.log(event);
-    console.log(page);
-
     this._paginationSubject.next(page);
   }
   onLimitSizeChanged(limit: number) {
-    console.log(limit);
-
     this._limitationSubject.next(limit);
+  }
+
+  onPriceFromChanged(event: Event) {
+    console.log(event);
   }
 
   readonly products$: Observable<ProductQueryModel[]> = combineLatest([
@@ -73,9 +91,10 @@ export class CategoryProductsComponent {
     this.productsFromCategory$,
     this.filterAndSortValues$,
     this.limitation$,
-    this.pagination$
+    this.pagination$,
+    this.filterPriceValues$
   ]).pipe(
-    map(([filters, products, filterValues, limit, page]) => {
+    map(([filters, products, filterValues, limit, page, filterPriceValues]) => {
       const limitStart = limit * (page - 1);
       const limitEnd = limit * (page - 1) + limit;
 
@@ -91,12 +110,20 @@ export class CategoryProductsComponent {
 
       const filterAndSortCurrentValues = filterMap[filters].split('-');
 
-      return products.sort((a: Record<string, any>, b: Record<string, any>) => {
-        if (filterAndSortCurrentValues[1] === 'asc') {
-          return a[filterAndSortCurrentValues[0]] > b[filterAndSortCurrentValues[0]] ? 1 : -1
-        }
-        return a[filterAndSortCurrentValues[0]] > b[filterAndSortCurrentValues[0]] ? -1 : 1
-      }).slice(limitStart, limitEnd);
+      return products
+        .sort((a: Record<string, any>, b: Record<string, any>) => {
+          if (filterAndSortCurrentValues[1] === 'asc') {
+            return a[filterAndSortCurrentValues[0]] > b[filterAndSortCurrentValues[0]] ? 1 : -1
+          }
+          return a[filterAndSortCurrentValues[0]] > b[filterAndSortCurrentValues[0]] ? -1 : 1
+        })
+        .filter((product) => {
+          return filterPriceValues.priceFrom ? product.price >= +filterPriceValues.priceFrom : true
+        })
+        .filter((product) => {
+          return filterPriceValues.priceTo ? product.price <= +filterPriceValues.priceTo : true
+        })
+        .slice(limitStart, limitEnd);
     })
   ).pipe(
     map((products) => products.map(product => ({
@@ -125,4 +152,5 @@ export class CategoryProductsComponent {
 
   constructor(private _categoryService: CategoryService, private _productService: ProductService, private _activatedRoute: ActivatedRoute) {
   }
+
 }
