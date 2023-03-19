@@ -1,7 +1,7 @@
 export interface ProductQueryModel {
   readonly id: string;
   readonly name: string;
-  readonly fixedPriceWithCurrency: number;
+  readonly fixedPrice: number;
   readonly categoryId: string;
   readonly ratingValue: number;
   readonly ratingCount: number;

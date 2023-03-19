@@ -25,7 +25,7 @@ export class CategoryProductsComponent {
   readonly params$: Observable<Params> = this._activatedRoute.params;
   readonly productsFromCategory$: Observable<ProductModel[]> = this.params$.pipe(
     switchMap(params => this._productService.getAllProductsForCategory(params['categoryId']))
-  );
+  ).pipe(shareReplay(1));
   readonly stores$: Observable<StoreQueryModel[]> = this._storeService.getAllStores().pipe(
     tap((stores) => {
       stores.forEach((store) => {
@@ -50,7 +50,9 @@ export class CategoryProductsComponent {
     { id: 4, filterBy: 'ratingValue', filterName: 'Avg. Rating', sortDirection: 'desc' }
   ]);
 
-  readonly storeFiltersForm: FormGroup = new FormGroup({});
+  readonly storeFiltersForm: FormGroup = new FormGroup({
+
+  });
   //selectedStores: FormArray = new FormArray([]);
   selectedStores: FormArray = new FormArray([]);
   readonly filterStoreValues$ = this.storeFiltersForm.valueChanges.pipe(startWith(''));
@@ -110,32 +112,23 @@ export class CategoryProductsComponent {
     this.filterControl.valueChanges.pipe(startWith('Featured')),
     this.productsFromCategory$,
     this.filterAndSortValues$,
-    this.limitation$,
-    this.pagination$,
     this.filterPriceValues$,
     this.filterRatingValues$,
     this.filterStoreValues$
   ]).pipe(
-    map(([filters, products, filterValues, limit, page, filterPriceValues, filterRatingValues, filterStoreValues]) => {
+    map(([filters, products, filterAndSortValues, filterPriceValues, filterRatingValues, filterStoreValues]) => {
 
-      console.log(filterStoreValues);
-
-      // const storeValueFromFilter = filterStoreValues.reduce(
-      //   (acc, curr) => {
-      //     return { acc, curr === true ? curr : ''), ''
-      // )
-
-      const limitStart: number = limit * (page - 1);
-      const limitEnd: number = limit * (page - 1) + limit;
+      const selectedFilterStoreValues = Object.entries(filterStoreValues).filter(obj => obj[1] === true).map(obj => obj[0]);
+      const selectedFilterStoreValuesSet: Set<string> = new Set<string>(selectedFilterStoreValues);
 
       const ratingValueFromFilter: number = String(filterRatingValues).split(',')
         .reduce((acc: number, curr: string) => (curr === '-fill' ? acc + 1 : acc), 0);
 
       if (!filters) {
-        return products.slice(limitStart, limitEnd);
+        return products;
       }
 
-      const filterMap: Record<string, string> = filterValues.reduce(
+      const filterMap: Record<string, string> = filterAndSortValues.reduce(
         (a, b) => {
           return { ...a, [b.filterName]: b.filterBy + '-' + b.sortDirection }
         }, {}
@@ -159,22 +152,35 @@ export class CategoryProductsComponent {
         .filter((product) => {
           return ratingValueFromFilter ? Math.floor(product.ratingValue) === ratingValueFromFilter : true
         })
-        // .filter((product) => {
-        //   return filterStoreValues ? filterStoreValues[product..storeId] === true : true
-        // })
-        .slice(limitStart, limitEnd);
+        .filter((product) => {
+          return selectedFilterStoreValues.length === 0 || product.storeIds.find((cId: string) => selectedFilterStoreValuesSet.has(cId))
+        })
     })
   ).pipe(
     map((products) => products.map(product => ({
       id: product.id,
       name: product.name,
-      fixedPriceWithCurrency: product.price,
+      fixedPrice: Math.trunc(product.price),
       categoryId: product.categoryId,
       ratingValue: product.ratingValue,
       ratingCount: product.ratingCount,
       ratingStars: this._getStarsValues(product.ratingValue),
       imageUrl: product.imageUrl
     })))
+  );
+
+  readonly productsLimited$: Observable<ProductQueryModel[]> = combineLatest([
+    this.products$,
+    this.limitation$,
+    this.pagination$,
+  ]).pipe(
+    map(([products, limit, page]) => {
+      const limitStart: number = limit * (page - 1);
+      const limitEnd: number = limit * (page - 1) + limit;
+
+      return products.slice(limitStart, limitEnd);
+
+    })
   );
 
   private _getStarsValues(ratingValues: number): string[] {

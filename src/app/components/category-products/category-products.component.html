@@ -100,11 +100,12 @@
                         </div>
                     </div>
                 </div>
-                <div *ngIf="products$ | async as products">
+                <div *ngIf="productsLimited$ | async as products">
                     <div class="d-lg-flex justify-content-between align-items-center">
-                        <div class="mb-3 mb-lg-0">
+                        <div class="mb-3 mb-lg-0"
+                             *ngIf="products$ | async as allProducts">
                             <p class="mb-0">
-                                <span class="text-dark">{{products.length}} Products found</span>
+                                <span class="text-dark">{{allProducts.length}} Products found</span>
                             </p>
                         </div>
                         <div class="d-md-flex justify-content-between align-items-center">
@@ -155,7 +156,8 @@
                                             </div>
                                             <div class="d-flex justify-content-between align-items-center mt-3">
                                                 <div>
-                                                    <span class="text-dark">{{product.fixedPriceWithCurrency}}</span>
+                                                    <span class="text-dark">{{product.fixedPrice | currency: 'USD' :
+                                                        'symbol' : '1.0-0'}}</span>
                                                 </div>
                                             </div>
                                         </div>
