@@ -27,11 +27,12 @@ export class CategoryProductsComponent {
     switchMap(params => this._productService.getAllProductsForCategory(params['categoryId']))
   ).pipe(shareReplay(1));
   readonly stores$: Observable<StoreQueryModel[]> = this._storeService.getAllStores().pipe(
+    shareReplay(1),
     tap((stores) => {
       stores.forEach((store) => {
         this.storeFiltersForm.addControl(store.id, new FormControl(false))
       })
-    })
+    }),
   );
 
   readonly categoryName$ = combineLatest([
@@ -50,10 +51,10 @@ export class CategoryProductsComponent {
     { id: 4, filterBy: 'ratingValue', filterName: 'Avg. Rating', sortDirection: 'desc' }
   ]);
 
-  readonly storeFiltersForm: FormGroup = new FormGroup({
+  readonly searchStoreFiltersForm: FormControl = new FormControl('');
+  readonly filterSearchStoreValues$ = this.searchStoreFiltersForm.valueChanges.pipe(startWith(''));
 
-  });
-  //selectedStores: FormArray = new FormArray([]);
+  readonly storeFiltersForm: FormGroup = new FormGroup({});
   selectedStores: FormArray = new FormArray([]);
   readonly filterStoreValues$ = this.storeFiltersForm.valueChanges.pipe(startWith(''));
 
@@ -94,10 +95,7 @@ export class CategoryProductsComponent {
   }
 
   onSelected(event: Event | null) {
-    // console.log(event);
     const input = event?.target as HTMLInputElement;
-    // console.log("id [" + input.value + ", checked [" + input.checked + "]");
-    // const idFormArray = <FormArray>this.storeFiltersForm.controls.;
 
     if (input.checked) {
       this.selectedStores.push(new FormControl(input.value));
@@ -114,9 +112,15 @@ export class CategoryProductsComponent {
     this.filterAndSortValues$,
     this.filterPriceValues$,
     this.filterRatingValues$,
-    this.filterStoreValues$
+    this.filterStoreValues$,
+    this.filterSearchStoreValues$,
+    this.stores$
   ]).pipe(
-    map(([filters, products, filterAndSortValues, filterPriceValues, filterRatingValues, filterStoreValues]) => {
+    map(([filters, products, filterAndSortValues, filterPriceValues, filterRatingValues, filterStoreValues, filterSearchStoreValues, stores]) => {
+
+      const foundStoreIds: Set<string> = new Set<string>(stores.filter(
+        store => store.name.toLowerCase().startsWith(filterSearchStoreValues.toLowerCase())
+      ).map(store => store.id));
 
       const selectedFilterStoreValues = Object.entries(filterStoreValues).filter(obj => obj[1] === true).map(obj => obj[0]);
       const selectedFilterStoreValuesSet: Set<string> = new Set<string>(selectedFilterStoreValues);
@@ -153,7 +157,11 @@ export class CategoryProductsComponent {
           return ratingValueFromFilter ? Math.floor(product.ratingValue) === ratingValueFromFilter : true
         })
         .filter((product) => {
-          return selectedFilterStoreValues.length === 0 || product.storeIds.find((cId: string) => selectedFilterStoreValuesSet.has(cId))
+          return selectedFilterStoreValues.length === 0 || product.storeIds.find((storeId: string) => selectedFilterStoreValuesSet.has(storeId))
+        })
+        .filter((product) => {
+          return product.storeIds.length > 0 && foundStoreIds.size > 0 ||
+            product.storeIds.find((storeId: string) => foundStoreIds.has(storeId))
         })
     })
   ).pipe(

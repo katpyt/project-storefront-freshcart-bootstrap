@@ -33,6 +33,12 @@
                             Stores
                         </h5>
                         <div class="my-4">
+                            <input type="search"
+                                   [formControl]="searchStoreFiltersForm"
+                                   class="form-control"
+                                   placeholder="Search by store">
+                        </div>
+                        <div class="my-4">
                             <form [formGroup]="storeFiltersForm">
                                 <div *ngFor="let store of stores$ | async"
                                      class="form-check mb-2">
