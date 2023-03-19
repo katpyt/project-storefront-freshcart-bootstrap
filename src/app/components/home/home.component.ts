@@ -64,7 +64,7 @@ export class HomeComponent {
           .map((product) => ({
             id: product.id,
             name: product.name,
-            fixedPriceWithCurrency: product.price,
+            fixedPrice: Math.trunc(product.price),
             categoryId: product.categoryId,
             ratingValue: product.ratingValue,
             ratingCount: product.ratingCount,
