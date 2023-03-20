@@ -187,7 +187,6 @@ export class CategoryProductsComponent {
       const limitEnd: number = limit * (page - 1) + limit;
 
       return products.slice(limitStart, limitEnd);
-
     })
   );
 

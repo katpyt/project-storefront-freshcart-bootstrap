@@ -43,9 +43,9 @@ export class AppComponent {
     })
   );
 
-  showToggle = false;
-  onToggle() {
-    this.showToggle = !this.showToggle;
+  showMobileView = false;
+  onMenuMobileButtonClicked() {
+    this.showMobileView = !this.showMobileView;
   }
 
   constructor(private _storeService: StoreService, private _tagService: TagService, private _categoryService: CategoryService) {
