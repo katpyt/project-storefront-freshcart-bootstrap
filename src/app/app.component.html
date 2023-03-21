@@ -64,7 +64,7 @@
                             <a class="nav-link"
                                [routerLink]="'/categories/'+category.id"
                                role="button"
-                               (click)="onMenuMobileButtonClicked()">{{category.name}}</a>
+                               (click)="showMobileView ? onMenuMobileButtonClicked() : ''">{{category.name}}</a>
                         </li>
                     </ul>
                 </div>
