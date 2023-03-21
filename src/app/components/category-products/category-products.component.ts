@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { BehaviorSubject, Observable, combineLatest, of, shareReplay } from 'rxjs';
-import { map, startWith, switchMap, tap } from 'rxjs/operators';
+import { map, startWith, switchMap, take, tap } from 'rxjs/operators';
 import { CategoryModel } from '../../models/category.model';
 import { ProductModel } from '../../models/product.model';
 import { FilterAndSortModel } from '../../models/filter-and-sort.model';
@@ -21,6 +21,16 @@ import { TokenizeResult } from '@angular/compiler/src/ml_parser/lexer';
 })
 
 export class CategoryProductsComponent {
+
+  readonly queryParamsValues$: Observable<{ limit: number, page: number }> = this._activatedRoute.queryParams.pipe(
+    map(queryParams => ({
+      limit: queryParams['limit'] === undefined ? 5 : queryParams['limit'],
+      page: queryParams['page'] === undefined ? 1 : queryParams['page'],
+    })),
+    tap((queryParams) => this.currentPageValue.patchValue(queryParams['page'])),
+    shareReplay(1)
+  );
+
   readonly categories$: Observable<CategoryModel[]> = this._categoryService.getAllCategories().pipe(shareReplay(1));
   readonly params$: Observable<Params> = this._activatedRoute.params;
   readonly productsFromCategory$: Observable<ProductModel[]> = this.params$.pipe(
@@ -74,24 +84,43 @@ export class CategoryProductsComponent {
   readonly limits$: Observable<number[]> = of([5, 10, 15]);
   readonly pages$: Observable<number[]> = of([1, 2, 3]);
 
-  readonly initialLimitValue: number = 5;
-  readonly initialPageValue: number = 1;
-
-  private _limitationSubject: BehaviorSubject<number> = new BehaviorSubject<number>(this.initialLimitValue);
-  public limitation$: Observable<number> = this._limitationSubject
-    .asObservable()
-    .pipe(shareReplay(1));
-
-  private _paginationSubject: BehaviorSubject<number> = new BehaviorSubject<number>(this.initialPageValue);
-  public pagination$: Observable<number> = this._paginationSubject
-    .asObservable()
-    .pipe(shareReplay(1));
+  readonly currentLimitValue = new FormControl(0);
+  readonly currentPageValue = new FormControl(0);
 
   onPageSizeChanged(page: number) {
-    this._paginationSubject.next(page);
+    this.queryParamsValues$.pipe(
+      take(1),
+      tap((data) => {
+
+        this._router.navigate(
+          [],
+          {
+            queryParams: {
+              limit: data.limit,
+              page: page
+            }
+          }
+        )
+      })
+    ).subscribe();
   }
+
   onLimitSizeChanged(limit: number) {
-    this._limitationSubject.next(limit);
+    this.queryParamsValues$.pipe(
+      take(1),
+      tap((data) => {
+
+        this._router.navigate(
+          [],
+          {
+            queryParams: {
+              limit: limit,
+              page: data.page
+            }
+          }
+        )
+      })
+    ).subscribe();
   }
 
   onSelected(event: Event | null) {
@@ -177,14 +206,14 @@ export class CategoryProductsComponent {
     })))
   );
 
+
   readonly productsLimited$: Observable<ProductQueryModel[]> = combineLatest([
     this.products$,
-    this.limitation$,
-    this.pagination$,
+    this.queryParamsValues$
   ]).pipe(
-    map(([products, limit, page]) => {
-      const limitStart: number = limit * (page - 1);
-      const limitEnd: number = limit * (page - 1) + limit;
+    map(([products, queryParamsValues]) => {
+      const limitStart: number = +queryParamsValues.limit * (+queryParamsValues.page - 1);
+      const limitEnd: number = +queryParamsValues.limit * (+queryParamsValues.page - 1) + +queryParamsValues.limit;
 
       return products.slice(limitStart, limitEnd);
     })
@@ -203,7 +232,7 @@ export class CategoryProductsComponent {
   }
 
   constructor(private _categoryService: CategoryService, private _productService: ProductService
-    , private _storeService: StoreService, private _activatedRoute: ActivatedRoute) {
+    , private _storeService: StoreService, private _activatedRoute: ActivatedRoute, private _router: Router) {
   }
 
 }
