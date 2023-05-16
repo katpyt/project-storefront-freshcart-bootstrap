@@ -27,9 +27,9 @@
                                 </p>
                             </div>
                             <div class="position-relative">
-                                <input type="email"
+                                <input type="search"
                                        class="form-control"
-                                       id="exampleFormControlInput1"
+                                       [formControl]="searchStore"
                                        placeholder="Search {{store.name}}">
                                 <span class="position-absolute end-0 top-0 mt-2 me-3">
                                     <svg xmlns="http://www.w3.org/2000/svg"
@@ -62,7 +62,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </section>
     <section class="mb-lg-14 mb-8">
@@ -79,7 +78,7 @@
                 </div>
             </div>
             <div class="row row-cols-6 row-cols-md-6 row-cols-lg-6 row-cols-xxl-6 g-6">
-                <div class="card card-product"
+                <div class="card border-white"
                      *ngFor="let product of storeProducts$ | async">
                     <div class="card-body">
                         <div class="text-center position-relative">

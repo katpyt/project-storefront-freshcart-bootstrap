@@ -83,6 +83,7 @@ export class CategoryProductsComponent {
 
   readonly limits$: Observable<number[]> = of([5, 10, 15]);
   readonly pages$: Observable<number[]> = of([1, 2, 3]);
+  pagesDependingOnLimit$ = this.pages$;
 
   readonly currentLimitValue = new FormControl(0);
   readonly currentPageValue = new FormControl(0);
@@ -189,7 +190,7 @@ export class CategoryProductsComponent {
           return selectedFilterStoreValues.length === 0 || product.storeIds.find((storeId: string) => selectedFilterStoreValuesSet.has(storeId))
         })
         .filter((product) => {
-          return product.storeIds.length > 0 && foundStoreIds.size > 0 ||
+          return product.storeIds.length > 0 && foundStoreIds.size > 0 &&
             product.storeIds.find((storeId: string) => foundStoreIds.has(storeId))
         })
     })
@@ -209,11 +210,34 @@ export class CategoryProductsComponent {
 
   readonly productsLimited$: Observable<ProductQueryModel[]> = combineLatest([
     this.products$,
-    this.queryParamsValues$
+    this.queryParamsValues$,
+    this.pages$
   ]).pipe(
-    map(([products, queryParamsValues]) => {
+    map(([products, queryParamsValues, pages]) => {
       const limitStart: number = +queryParamsValues.limit * (+queryParamsValues.page - 1);
       const limitEnd: number = +queryParamsValues.limit * (+queryParamsValues.page - 1) + +queryParamsValues.limit;
+
+      // console.log("limitStart: [" + limitStart + "], limitEnd [" + limitEnd + "]")
+      // console.log("products.length / queryParamsValues.page [" + Math.ceil(products.length / queryParamsValues.limit) + "]")
+
+      this.pagesDependingOnLimit$ = this.pages$.pipe(
+        map((data) => {
+          return data.filter(d => d <= Math.ceil(products.length / queryParamsValues.limit))
+        })
+      )
+
+      if (products.length < queryParamsValues.limit) {
+        this._router.navigate(
+          [],
+          {
+            queryParams: {
+              limit: queryParamsValues.limit,
+              page: Math.ceil(products.length / queryParamsValues.limit)
+            }
+          }
+        )
+      }
+
 
       return products.slice(limitStart, limitEnd);
     })

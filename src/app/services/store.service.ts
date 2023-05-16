@@ -23,7 +23,7 @@ export class StoreService {
 
     }
 
-    getOneStore(storeId: string): Observable<StoreModel> {
+    getOneStore(storeId: string): Observable<StoreQueryModel> {
         return this._httpClient.get<StoreModel>(`https://6384fca14ce192ac60696c4b.mockapi.io/freshcart-stores/${storeId}`).pipe(
             map((store) => {
                 return ({
